@@ -28,6 +28,7 @@ SPDX-License-Identifier: MIT
 
 #include "reloj.h"
 #include <string.h>
+#include <stdlib.h>
 /* === Macros definitions ====================================================================== */
 
 /* === Private data type declarations ========================================================== */
@@ -45,13 +46,31 @@ static bool hora_es_valida = false;
 /* === Private function definitions ============================================================ */
 
 /* === Public function implementation ========================================================== */
-clock_t RelojCreate(unsigned int ticks_per_second, void * alarm_handler) {
-    return NULL;
+clock_t RelojCreate(unsigned int ticks_per_second, void (*callback)(clock_t)) {
+    clock_t nuevo = malloc(sizeof(struct clock_s));
+    if (!nuevo)
+        return NULL;
+    memset(nuevo->hora, 0, sizeof(hora_t));
+    nuevo->valida = false;
+    nuevo->ticks_per_second = ticks_per_second;
+    nuevo->tick_count = 0;
+    nuevo->callback = callback;
+    return nuevo;
 }
 
-bool RelojGetCurrentTime(clock_t clock, hora_t current_time) {
-    memset(current_time, 0, sizeof(hora_t));
-    return false;
+bool RelojSetCurrentTime(clock_t reloj, hora_t nueva_hora) {
+    if (!reloj)
+        return false;
+    memcpy(reloj->hora, nueva_hora, sizeof(hora_t));
+    reloj->valida = true; // <-- esta línea es clave
+    return true;
+}
+
+bool RelojGetCurrentTime(clock_t reloj, hora_t current_time) {
+    if (!reloj)
+        return false;
+    memcpy(current_time, reloj->hora, sizeof(hora_t));
+    return reloj->valida; // devuelve true si la hora fue marcada como válida
 }
 
 void reloj_configurar_ticks_por_segundo(int ticks) {
@@ -110,5 +129,33 @@ void reloj_consultar_hora(uint8_t destino[6]) {
 bool reloj_hora_valida(void) {
     return hora_es_valida;
 }
+void ClockTick(clock_t reloj) {
+    if (!reloj)
+        return;
 
+    reloj->tick_count++;
+
+    if (reloj->tick_count >= reloj->ticks_per_second) {
+        reloj->tick_count = 0;
+
+        // Avanzar segundos
+        reloj->hora[5]++;
+        if (reloj->hora[5] >= 60) {
+            reloj->hora[5] = 0;
+            reloj->hora[4]++; // minutos
+            if (reloj->hora[4] >= 60) {
+                reloj->hora[4] = 0;
+                reloj->hora[3]++; // horas
+                if (reloj->hora[3] >= 24) {
+                    reloj->hora[3] = 0;
+                }
+            }
+        }
+
+        // Si hay callback, llamarlo
+        if (reloj->callback) {
+            reloj->callback(reloj);
+        }
+    }
+}
 /* === End of documentation ==================================================================== */

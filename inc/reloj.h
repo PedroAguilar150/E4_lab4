@@ -31,6 +31,7 @@ SPDX-License-Identifier: MIT
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "bsp.h"
 
 /* === Header for C++ compatibility ================================================================================ */
 
@@ -41,22 +42,34 @@ extern "C" {
 /* === Public macros definitions =================================================================================== */
 
 /* === Public data type declarations =============================================================================== */
-typedef struct clock_s * clock_t;
-
 typedef uint8_t hora_t[6];
+
+struct clock_s {
+    hora_t hora;
+    bool valida;
+    unsigned int ticks_per_second;
+    unsigned int tick_count;
+    void (*callback)(struct clock_s *);
+};
+
+typedef struct clock_s * clock_t;
 
 /* === Public variable declarations ================================================================================ */
 
 /* === Public function declarations ================================================================================ */
-clock_t RelojCreate(unsigned int ticks_per_second, void * alarm_handler);
+clock_t RelojCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
 
-bool RelojGetCurrentTime(clock_t clock, hora_t current_time);
+// bool RelojGetCurrentTime(clock_t clock, hora_t current_time);
+
+bool RelojSetCurrentTime(clock_t reloj, hora_t nueva_hora);
+bool RelojGetCurrentTime(clock_t reloj, hora_t current_time);
 
 void reloj_configurar_ticks_por_segundo(int ticks);
 
 void reloj_ajustar_hora(uint8_t nueva_hora[6]);
 
 void reloj_tick(void);
+void ClockTick(clock_t reloj);
 
 void reloj_consultar_hora(uint8_t destino[6]);
 

@@ -102,6 +102,7 @@
     - src/**
   :include:
     - inc/** # In simple projects, this entry often duplicates :source
+    - hal/inc
   :support:
     - test/support
   :libraries: []
