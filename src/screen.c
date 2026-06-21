@@ -22,7 +22,7 @@ SPDX-License-Identifier: MIT
 
 /** @file screen.c
  ** @brief Implementación de la pantalla multiplexada de 7 segmentos.
-**/
+ **/
 
 /* === Headers files inclusions ================================================================ */
 #include "screen.h"
@@ -30,7 +30,7 @@ SPDX-License-Identifier: MIT
 
 /* === Macros definitions ====================================================================== */
 
-#ifndef  DISPLAY_MAX_DIGITS
+#ifndef DISPLAY_MAX_DIGITS
 #define DISPLAY_MAX_DIGITS 8
 #endif
 
@@ -38,11 +38,11 @@ SPDX-License-Identifier: MIT
 
 /**
  * @brief Descriptor interno de la pantalla multiplexada de 7 segmentos.
- * 
+ *
  */
 
-struct display_s{
-    uint8_t digits;          
+struct display_s {
+    uint8_t digits;
     uint8_t active_digit;
     uint8_t flashing_from;
     uint8_t flashing_to;
@@ -50,7 +50,6 @@ struct display_s{
     uint16_t flashing_count;
     uint8_t display_memory[DISPLAY_MAX_DIGITS];
     struct display_driver_s driver[1];
-
 };
 /* === Private function declarations =========================================================== */
 
@@ -66,7 +65,7 @@ static const uint8_t IMAGES[] = {
     SEGMENT_B | SEGMENT_C | SEGMENT_F | SEGMENT_G,
     SEGMENT_A | SEGMENT_C | SEGMENT_D | SEGMENT_F | SEGMENT_G,
     SEGMENT_A | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F | SEGMENT_G,
-    SEGMENT_A | SEGMENT_B | SEGMENT_C, 
+    SEGMENT_A | SEGMENT_B | SEGMENT_C,
     SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F | SEGMENT_G,
     SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_F | SEGMENT_G,
 };
@@ -75,15 +74,15 @@ static const uint8_t IMAGES[] = {
 
 /* === Private function definitions ============================================================ */
 
-static display_t DisplayAllocate(void){
+static display_t DisplayAllocate(void) {
     static struct display_s instances[1] = {0};
     return &instances[0];
 }
 
 /* === Public function implementation ========================================================== */
-display_t DisplayCreate(uint8_t digits, display_driver_t driver){
+display_t DisplayCreate(uint8_t digits, display_driver_t driver) {
     display_t display = DisplayAllocate();
-    if(display){
+    if (display) {
         display->digits = digits;
         display->active_digit = digits - 1;
         display->flashing_count = 0;
@@ -97,13 +96,13 @@ display_t DisplayCreate(uint8_t digits, display_driver_t driver){
     return display;
 }
 
-void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size){
+void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size) {
     memset(display->display_memory, 0, sizeof(display->display_memory));
-    for(int index = 0; index < size ; index++){
-        if(index >= display->digits){
+    for (int index = 0; index < size; index++) {
+        if (index >= display->digits) {
             break;
         }
-        display->display_memory[index] = IMAGES[number[index]];    
+        display->display_memory[index] = IMAGES[number[index]];
     }
 }
 
@@ -130,15 +129,15 @@ void DisplayRefresh(display_t display) {
     display->driver->UpdateDigits(display->active_digit);
 }
 
-void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frequency){
+void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frequency) {
     display->flashing_count = 0;
     display->flashing_from = from;
     display->flashing_to = to;
     display->flashing_frecuency = frequency;
 }
 
-void DisplayToggleDots(display_t display, uint8_t from, uint8_t to){
-    for(int index = from; index <= to; index++){
+void DisplayToggleDots(display_t display, uint8_t from, uint8_t to) {
+    for (int index = from; index <= to; index++) {
         display->display_memory[index] ^= SEGMENT_P;
     }
 }

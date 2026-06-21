@@ -38,7 +38,7 @@ extern "C" {
 
 /* === Public macros definitions =================================================================================== */
 
-#define ACTIVATE_EVENT 1
+#define ACTIVATE_EVENT   1
 #define DEACTIVATE_EVENT -1
 
 /* === Public data type declarations =============================================================================== */
@@ -49,8 +49,8 @@ extern "C" {
 typedef struct digital_output_s * digital_output_t;
 
 /**
- * @brief Puntero opaco al discritor de una entrada digital 
- * 
+ * @brief Puntero opaco al discritor de una entrada digital
+ *
  */
 typedef struct digital_input_s * digital_input_t;
 
@@ -60,10 +60,10 @@ typedef struct digital_input_s * digital_input_t;
 
 /**
  * @brief Crea y configura una salida digital en el puerto y terminal indicados
- * 
- * @param puerto 
- * @param terminal 
- * @return digital_output_t 
+ *
+ * @param puerto
+ * @param terminal
+ * @return digital_output_t
  */
 
 digital_output_t DigitalOutputCreate(uint32_t gpio, uint8_t bit);
@@ -88,38 +88,39 @@ void DigitalOutputToggle(digital_output_t output);
 
 /**
  * @brief Crea y configura una entrada digital en el puerto y terminal indicados
- * 
- * @param gpio 
- * @param bit 
- * @param inverted 
- * @return digital_input_t 
+ *
+ * @param gpio
+ * @param bit
+ * @param inverted
+ * @return digital_input_t
  */
 digital_input_t DigitalInputCreate(uint32_t gpio, uint8_t bit, bool inverted);
 
 /**
  * @brief Lee el estalo logico actual de la entrada digital
- * 
- * @param input 
- * @return true 
- * @return false 
+ *
+ * @param input
+ * @return true
+ * @return false
  */
 bool DigitalInputGetState(digital_input_t input);
 
 /**
  * @brief Detecta si la entrada digital ha cambiado su estado logico desde la ultima lectura
- * 
- * @param input 
- * @return int 
+ *
+ * @param input
+ * @return int
  */
 
 int DigitalInputHasChanged(digital_input_t input);
 
 /**
- * @brief Detecta si la entrada digital ha cambiado su estado logico desde la ultima lectura y se encuentra en estado de activacion
- * 
- * @param self 
- * @return true 
- * @return false 
+ * @brief Detecta si la entrada digital ha cambiado su estado logico desde la ultima lectura y se encuentra en estado de
+ * activacion
+ *
+ * @param self
+ * @return true
+ * @return false
  */
 bool DigitalInputHasActivated(digital_input_t self);
 

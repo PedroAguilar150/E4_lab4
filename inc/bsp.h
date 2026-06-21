@@ -42,7 +42,7 @@ extern "C" {
 /* === Public macros definitions =================================================================================== */
 
 /* === Public data type declarations =============================================================================== */
-typedef struct board_s{
+typedef struct board_s {
     digital_output_t buzzer;
     digital_input_t f1;
     digital_input_t f2;
@@ -58,14 +58,14 @@ typedef struct board_s{
 /* === Public function declarations ================================================================================ */
 /**
  * @brief Inicializa el hardware de la placa y crea el descriptor de recursos
- * 
+ *
  * @return puntero al descriptor de la placa
  */
 board_t BoardCreate();
 
 /**
- * @brief Configura el temporizador Systick del nucleo  
- * 
+ * @brief Configura el temporizador Systick del nucleo
+ *
  * @param ticks Frecuencia de interrupcion del Systick en Hz
  */
 void SisTick_Init(uint16_t ticks);

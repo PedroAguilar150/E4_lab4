@@ -127,7 +127,7 @@ void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size);
  *
  * @param  display  Descriptor creado con @ref DisplayCreate
  */
-void DisplayRefresh(display_t display); 
+void DisplayRefresh(display_t display);
 
 /**
  * @brief Configura el parpadeo de un rango de dígitos
