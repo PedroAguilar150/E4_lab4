@@ -158,4 +158,17 @@ void ClockTick(clock_t reloj) {
         }
     }
 }
+
+clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*callback)(clock_t)) {
+    return RelojCreate(ticks_per_second, callback);
+}
+
+bool SetCurrentTime(clock_t reloj, hora_t nueva_hora) {
+    return RelojSetCurrentTime(reloj, nueva_hora);
+}
+
+bool GetCurrentTime(clock_t reloj, hora_t hora_actual) {
+    return RelojGetCurrentTime(reloj, hora_actual);
+}
+
 /* === End of documentation ==================================================================== */

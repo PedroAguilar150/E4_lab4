@@ -59,8 +59,6 @@ typedef struct clock_s * clock_t;
 /* === Public function declarations ================================================================================ */
 clock_t RelojCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
 
-// bool RelojGetCurrentTime(clock_t clock, hora_t current_time);
-
 bool RelojSetCurrentTime(clock_t reloj, hora_t nueva_hora);
 bool RelojGetCurrentTime(clock_t reloj, hora_t current_time);
 
@@ -74,6 +72,10 @@ void ClockTick(clock_t reloj);
 void reloj_consultar_hora(uint8_t destino[6]);
 
 bool reloj_hora_valida(void);
+
+clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*callback)(clock_t));
+bool SetCurrentTime(clock_t reloj, hora_t nueva_hora);
+bool GetCurrentTime(clock_t reloj, hora_t hora_actual);
 
 /* === End of conditional blocks =================================================================================== */
 
