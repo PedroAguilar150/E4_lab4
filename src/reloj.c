@@ -202,4 +202,11 @@ bool AlarmReadTime(clock_t reloj, hora_t alarma_actual) {
     return true;
 }
 
+bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma) {
+    if (reloj == NULL)
+        return false;
+    memcpy(reloj->alarma, nueva_alarma, sizeof(hora_t));
+    return true;
+}
+
 /* === End of documentation ==================================================================== */

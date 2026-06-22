@@ -103,3 +103,23 @@ void test_establecer_y_leer_alarma(void) {
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma_esperada, alarma_leida, 6);
 }
+
+/* Test 6: La librería deberá proporcionar una función para consultar la hora fijada para la alarma.*/
+void test_consultar_hora_alarma(void) {
+    clock_t reloj;
+    hora_t alarma_leida;
+
+    // Hora de alarma previamente fijada
+    uint8_t alarma_inicial[6] = {0, 6, 3, 0, 0, 0}; // 06:30:00
+    uint8_t alarma_esperada[6] = {0, 6, 3, 0, 0, 0};
+
+    reloj = RelojCreate(1, NULL);
+
+    bool set_ok = SetAlarmTime(reloj, alarma_inicial);
+    TEST_ASSERT_TRUE(set_ok);
+
+    bool get_ok = AlarmReadTime(reloj, alarma_leida);
+    TEST_ASSERT_TRUE(get_ok);
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma_esperada, alarma_leida, 6);
+}

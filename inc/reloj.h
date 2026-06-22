@@ -86,6 +86,8 @@ clock_t ClockCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
 bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma);
 bool AlarmReadTime(clock_t reloj, hora_t alarma_actual);
 
+bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma);
+
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus
