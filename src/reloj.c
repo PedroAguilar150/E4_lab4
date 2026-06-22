@@ -129,6 +129,7 @@ void reloj_consultar_hora(uint8_t destino[6]) {
 bool reloj_hora_valida(void) {
     return hora_es_valida;
 }
+
 void ClockTick(clock_t reloj) {
     if (!reloj)
         return;
@@ -138,27 +139,43 @@ void ClockTick(clock_t reloj) {
     if (reloj->tick_count >= reloj->ticks_per_second) {
         reloj->tick_count = 0;
 
-        // Avanzar segundos
+        // Incrementar unidad de segundos
         reloj->hora[5]++;
-        if (reloj->hora[5] >= 60) {
+        if (reloj->hora[5] >= 10) {
             reloj->hora[5] = 0;
-            reloj->hora[4]++; // minutos
-            if (reloj->hora[4] >= 60) {
+            reloj->hora[4]++; // decena de segundos
+
+            if (reloj->hora[4] >= 6) {
                 reloj->hora[4] = 0;
-                reloj->hora[3]++; // horas
-                if (reloj->hora[3] >= 24) {
+                reloj->hora[3]++; // unidad de minutos
+
+                if (reloj->hora[3] >= 10) {
                     reloj->hora[3] = 0;
+                    reloj->hora[2]++; // decena de minutos
+
+                    if (reloj->hora[2] >= 6) {
+                        reloj->hora[2] = 0;
+                        reloj->hora[1]++; // unidad de horas
+
+                        if (reloj->hora[1] >= 10) {
+                            reloj->hora[1] = 0;
+                            reloj->hora[0]++; // decena de horas
+
+                            if (reloj->hora[0] >= 3 && reloj->hora[1] >= 4) {
+                                reloj->hora[0] = 0;
+                                reloj->hora[1] = 0;
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // Si hay callback, llamarlo
         if (reloj->callback) {
             reloj->callback(reloj);
         }
     }
 }
-
 clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*callback)(clock_t)) {
     return RelojCreate(ticks_per_second, callback);
 }

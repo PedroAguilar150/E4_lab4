@@ -208,3 +208,23 @@ void test_posponer_alarma_incrementa_minutos(void) {
 
     TEST_ASSERT_EQUAL_INT(minutos_inicial + 10, minutos_final);
 }
+
+/*Test 11: La librería deberá manejar todas las horas como un arreglo de bytes en formato BCD sin
+compactar, con la decena de horas en la primera posición y la unidad de los segundos en la
+última posición del vector.*/
+void test_avance_segundos_formato_BCD(void) {
+    clock_t reloj;
+    hora_t hora_actual;
+
+    uint8_t hora_inicial[6] = {0, 0, 0, 0, 0, 9};
+    uint8_t hora_esperada[6] = {0, 0, 0, 0, 1, 0};
+
+    reloj = RelojCreate(1, NULL);
+    SetCurrentTime(reloj, hora_inicial);
+
+    // Un tick debería pasar de 09 a 10 segundos en formato BCD
+    ClockTick(reloj);
+    GetCurrentTime(reloj, hora_actual);
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(hora_esperada, hora_actual, 6);
+}
