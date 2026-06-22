@@ -50,6 +50,7 @@ struct clock_s {
     unsigned int ticks_per_second;
     unsigned int tick_count;
     void (*callback)(struct clock_s *);
+    hora_t alarma;
 };
 
 typedef struct clock_s * clock_t;
@@ -80,6 +81,10 @@ bool GetCurrentTime(clock_t reloj, hora_t hora_actual);
 clock_t ClockCreateWithTicks(unsigned int ticks_per_second, void (*callback)(clock_t));
 bool IsCurrentTimeValid(clock_t reloj);
 bool ReadCurrentTime(clock_t reloj, hora_t hora_actual);
+
+clock_t ClockCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
+bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma);
+bool AlarmReadTime(clock_t reloj, hora_t alarma_actual);
 
 /* === End of conditional blocks =================================================================================== */
 

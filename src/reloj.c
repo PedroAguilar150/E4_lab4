@@ -184,4 +184,22 @@ bool ReadCurrentTime(clock_t reloj, hora_t hora_actual) {
     return RelojGetCurrentTime(reloj, hora_actual);
 }
 
+clock_t ClockCreate(unsigned int ticks_per_second, void (*callback)(clock_t)) {
+    return RelojCreate(ticks_per_second, callback);
+}
+
+bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma) {
+    if (reloj == NULL)
+        return false;
+    memcpy(reloj->alarma, nueva_alarma, sizeof(hora_t));
+    return true;
+}
+
+bool AlarmReadTime(clock_t reloj, hora_t alarma_actual) {
+    if (reloj == NULL)
+        return false;
+    memcpy(alarma_actual, reloj->alarma, sizeof(hora_t));
+    return true;
+}
+
 /* === End of documentation ==================================================================== */
