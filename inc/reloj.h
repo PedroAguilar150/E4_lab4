@@ -43,7 +43,7 @@ extern "C" {
 
 /* === Public data type declarations =============================================================================== */
 typedef uint8_t hora_t[6];
-
+typedef struct clock_s * clock_t;
 struct clock_s {
     hora_t hora;
     bool valida;
@@ -53,8 +53,6 @@ struct clock_s {
     hora_t alarma;
     bool alarma_habilitada;
 };
-
-typedef struct clock_s * clock_t;
 
 /* === Public variable declarations ================================================================================ */
 
@@ -94,6 +92,11 @@ bool IsAlarmActive(clock_t reloj);
 
 void SetAlarmEnabled(clock_t reloj, bool estado);
 bool IsAlarmEnabled(clock_t reloj);
+
+bool AjustarHora(clock_t reloj, uint8_t * hora);
+bool ConfigurarAlarma(clock_t reloj, uint8_t * hora);
+void ActivarAlarma(clock_t reloj, bool estado);
+void TickClock(clock_t reloj);
 
 /* === End of conditional blocks =================================================================================== */
 

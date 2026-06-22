@@ -153,3 +153,28 @@ void test_consultar_estado_alarma(void) {
     SetAlarmEnabled(reloj, true);
     TEST_ASSERT_TRUE(IsAlarmEnabled(reloj));
 }
+
+/* Test 9: La librería deberá generar un evento cuando la alarma esté habilitada y además hora actual
+coincida con la hora de la alarma.*/
+void test_evento_alarma_activa(void) {
+    clock_t reloj;
+    uint8_t hora_actual[6] = {0, 6, 5, 9, 5, 9}; // 06:59:59
+
+    int evento_disparado = 0;
+
+    void CallbackEvento(clock_t r) {
+        (void)r;
+        evento_disparado++;
+    }
+
+    reloj = ClockCreate(1, CallbackEvento);
+    // Ajustamos la hora y la alarma a la misma
+    AjustarHora(reloj, hora_actual);
+    ConfigurarAlarma(reloj, hora_actual);
+
+    ActivarAlarma(reloj, true);
+
+    TickClock(reloj);
+
+    TEST_ASSERT_EQUAL_INT(1, evento_disparado);
+}

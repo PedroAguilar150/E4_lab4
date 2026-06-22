@@ -232,5 +232,49 @@ bool IsAlarmEnabled(clock_t reloj) {
         return false;
     return reloj->alarma_habilitada;
 }
+bool AjustarHora(clock_t reloj, uint8_t * hora) {
+    if (reloj == NULL)
+        return false;
+    for (int i = 0; i < 6; i++) {
+        reloj->hora[i] = hora[i];
+    }
+    reloj->valida = true;
+    return true;
+}
+
+bool ConfigurarAlarma(clock_t reloj, uint8_t * hora) {
+    if (reloj == NULL)
+        return false;
+    for (int i = 0; i < 6; i++) {
+        reloj->alarma[i] = hora[i];
+    }
+    return true;
+}
+
+void ActivarAlarma(clock_t reloj, bool estado) {
+    if (reloj != NULL) {
+        reloj->alarma_habilitada = estado;
+    }
+}
+
+static bool HoraIgual(hora_t h1, hora_t h2) {
+    for (int i = 0; i < 6; i++) {
+        if (h1[i] != h2[i])
+            return false;
+    }
+    return true;
+}
+
+void TickClock(clock_t reloj) {
+    if (reloj == NULL)
+        return;
+
+    // Verificar alarma
+    if (reloj->alarma_habilitada && HoraIgual(reloj->hora, reloj->alarma)) {
+        if (reloj->callback != NULL) {
+            reloj->callback(reloj);
+        }
+    }
+}
 
 /* === End of documentation ==================================================================== */
