@@ -123,3 +123,21 @@ void test_consultar_hora_alarma(void) {
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma_esperada, alarma_leida, 6);
 }
+
+/* Test 7: La librería deberá proporcionar una función para habilitar y deshabilitar la alarma.*/
+void test_activar_y_desactivar_alarma(void) {
+    clock_t reloj;
+
+    reloj = ClockCreate(1, NULL);
+
+    // Por defecto, la alarma debería iniciar desactivada
+    TEST_ASSERT_FALSE(IsAlarmActive(reloj));
+
+    // La activamos y comprobamos
+    AlarmEnable(reloj, true);
+    TEST_ASSERT_TRUE(IsAlarmActive(reloj));
+
+    // La desactivamos y comprobamos
+    AlarmEnable(reloj, false);
+    TEST_ASSERT_FALSE(IsAlarmActive(reloj));
+}

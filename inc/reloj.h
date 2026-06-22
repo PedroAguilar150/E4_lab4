@@ -51,6 +51,7 @@ struct clock_s {
     unsigned int tick_count;
     void (*callback)(struct clock_s *);
     hora_t alarma;
+    bool alarma_habilitada;
 };
 
 typedef struct clock_s * clock_t;
@@ -87,6 +88,9 @@ bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma);
 bool AlarmReadTime(clock_t reloj, hora_t alarma_actual);
 
 bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma);
+
+void AlarmEnable(clock_t reloj, bool estado);
+bool IsAlarmActive(clock_t reloj);
 
 /* === End of conditional blocks =================================================================================== */
 
