@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+static int alarma_sonada_veces = 0;
+
+void MiCallbackAlarma(clock_t reloj) {
+    (void)reloj;
+    alarma_sonada_veces++;
+}
 /* Test 1: La librería deberá mantener la hora actual, con precisión de segundos, a partir de la llamada
 a una función que se produce una cierta cantidad de veces por segundo.*/
 void test_reloj_avanza_un_segundo(void) {
@@ -177,4 +183,28 @@ void test_evento_alarma_activa(void) {
     TickClock(reloj);
 
     TEST_ASSERT_EQUAL_INT(1, evento_disparado);
+}
+
+/*Test 10 : La librería deberá proporcionar una función para posponer la alarma una cantidad arbitraria
+de minutos.*/
+void test_posponer_alarma_incrementa_minutos(void) {
+    clock_t reloj;
+    hora_t alarma_consultada;
+
+    uint8_t hora_inicial[6] = {0, 7, 3, 0, 0, 0};
+
+    reloj = RelojCreate(1, MiCallbackAlarma);
+    SetCurrentTime(reloj, hora_inicial);
+    SetAlarmTime(reloj, hora_inicial);
+    SetAlarmEnabled(reloj, true);
+
+    bool postpone_ok = PostponeAlarm(reloj, 10);
+    TEST_ASSERT_TRUE(postpone_ok);
+
+    GetAlarmTime(reloj, alarma_consultada);
+
+    int minutos_inicial = hora_inicial[2] * 10 + hora_inicial[3];
+    int minutos_final = alarma_consultada[2] * 10 + alarma_consultada[3];
+
+    TEST_ASSERT_EQUAL_INT(minutos_inicial + 10, minutos_final);
 }

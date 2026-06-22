@@ -277,4 +277,42 @@ void TickClock(clock_t reloj) {
     }
 }
 
+bool PostponeAlarm(clock_t reloj, unsigned int minutos) {
+    if (reloj == NULL)
+        return false;
+
+    // Convertir hora actual de la alarma a valores enteros
+    int horas = reloj->alarma[0] * 10 + reloj->alarma[1];
+    int mins = reloj->alarma[2] * 10 + reloj->alarma[3];
+    int segs = reloj->alarma[4] * 10 + reloj->alarma[5];
+
+    // Sumar minutos
+    int total = horas * 60 + mins + minutos;
+
+    // Normalizar dentro de 24h
+    total %= (24 * 60);
+
+    horas = total / 60;
+    mins = total % 60;
+
+    // Guardar en BCD
+    reloj->alarma[0] = horas / 10;
+    reloj->alarma[1] = horas % 10;
+    reloj->alarma[2] = mins / 10;
+    reloj->alarma[3] = mins % 10;
+    reloj->alarma[4] = segs / 10;
+    reloj->alarma[5] = segs % 10;
+
+    return true;
+}
+
+bool GetAlarmTime(clock_t reloj, hora_t hora) {
+    if (reloj == NULL)
+        return false;
+    for (int i = 0; i < 6; i++) {
+        hora[i] = reloj->alarma[i];
+    }
+    return true;
+}
+
 /* === End of documentation ==================================================================== */

@@ -98,6 +98,9 @@ bool ConfigurarAlarma(clock_t reloj, uint8_t * hora);
 void ActivarAlarma(clock_t reloj, bool estado);
 void TickClock(clock_t reloj);
 
+bool PostponeAlarm(clock_t reloj, unsigned int minutos);
+bool GetAlarmTime(clock_t reloj, hora_t hora);
+
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus
