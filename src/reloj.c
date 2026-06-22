@@ -221,4 +221,16 @@ bool IsAlarmActive(clock_t reloj) {
     return reloj->alarma_habilitada;
 }
 
+void SetAlarmEnabled(clock_t reloj, bool estado) {
+    if (reloj != NULL) {
+        reloj->alarma_habilitada = estado;
+    }
+}
+
+bool IsAlarmEnabled(clock_t reloj) {
+    if (reloj == NULL)
+        return false;
+    return reloj->alarma_habilitada;
+}
+
 /* === End of documentation ==================================================================== */

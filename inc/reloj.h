@@ -92,6 +92,9 @@ bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma);
 void AlarmEnable(clock_t reloj, bool estado);
 bool IsAlarmActive(clock_t reloj);
 
+void SetAlarmEnabled(clock_t reloj, bool estado);
+bool IsAlarmEnabled(clock_t reloj);
+
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus
