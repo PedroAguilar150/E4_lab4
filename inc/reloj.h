@@ -77,6 +77,10 @@ clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*call
 bool SetCurrentTime(clock_t reloj, hora_t nueva_hora);
 bool GetCurrentTime(clock_t reloj, hora_t hora_actual);
 
+clock_t ClockCreateWithTicks(unsigned int ticks_per_second, void (*callback)(clock_t));
+bool IsCurrentTimeValid(clock_t reloj);
+bool ReadCurrentTime(clock_t reloj, hora_t hora_actual);
+
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus

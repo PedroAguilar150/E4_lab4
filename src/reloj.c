@@ -171,4 +171,17 @@ bool GetCurrentTime(clock_t reloj, hora_t hora_actual) {
     return RelojGetCurrentTime(reloj, hora_actual);
 }
 
+clock_t ClockCreateWithTicks(unsigned int ticks_per_second, void (*callback)(clock_t)) {
+    return RelojCreate(ticks_per_second, callback);
+}
+
+bool IsCurrentTimeValid(clock_t reloj) {
+    hora_t dummy;
+    return RelojGetCurrentTime(reloj, dummy);
+}
+
+bool ReadCurrentTime(clock_t reloj, hora_t hora_actual) {
+    return RelojGetCurrentTime(reloj, hora_actual);
+}
+
 /* === End of documentation ==================================================================== */

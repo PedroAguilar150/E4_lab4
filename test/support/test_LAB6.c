@@ -65,3 +65,22 @@ void test_configuracion_ticks_por_segundo(void) {
     TEST_ASSERT_TRUE(get_ok);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(hora_esperada, hora_actual, 6);
 }
+
+/* Test 4: La librería deberá informar que la hora actual es inválida hasta que se llama a la función para
+ajustar la hora por primera vez.*/
+void test_reloj_inicia_con_hora_invalida(void) {
+    static const hora_t INITIAL_TIME = {0, 0, 0, 0, 0, 0};
+    clock_t mi_reloj;
+    hora_t hora_leida = {9, 9, 9, 9, 9, 9};
+    bool hora_valida;
+
+    mi_reloj = ClockCreateWithTicks(1, NULL);
+
+    hora_valida = IsCurrentTimeValid(mi_reloj);
+
+    TEST_ASSERT_FALSE(hora_valida);
+
+    ReadCurrentTime(mi_reloj, hora_leida);
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(INITIAL_TIME, hora_leida, 6);
+}
