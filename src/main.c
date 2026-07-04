@@ -1,4 +1,4 @@
-/*********************************************************************************************************************
+/********************************
 Copyright (c) 2026, Pedro Aguilar
 Facultad de Ciencias Exactas y Tecnología, Universidad Nacional de Tucumán
 
@@ -18,12 +18,11 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 SPDX-License-Identifier: MIT
-*************************************************************************************************/
+*********************************/
 
-/** \brief EDU-CIAA-NXP board sample application
+/** \brief Programa principal para la placa EDU-CIAA
  **
- ** \addtogroup samples Samples
- ** \brief Samples applications with MUJU Framwork
+ **
  ** @{ */
 
 /* === Headers files inclusions =============================================================== */
@@ -32,134 +31,102 @@ SPDX-License-Identifier: MIT
 #error "This program can only be compiled for the EDU-CIAA-NXP board"
 #endif
 
-#include "placa.h"
+#include "bsp.h"
+#include "digital.h"
+#include "screen.h"
+#include <stdbool.h>
 
 /* === Macros definitions ====================================================================== */
 
 /* === Private data type declarations ========================================================== */
 
-/**
- * @brief Enumeration with color sequence of RGB led
- */
-typedef enum rgb_color_e {
-    LED_RED_ON = 0,
-    LED_RED_OFF,
-    LED_GREEN_ON,
-    LED_GREEN_OFF,
-    LED_BLUE_ON,
-    LED_BLUE_OFF,
-} rgb_color_t;
-
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
-
-/**
- * @brief Function to flash RGB led in sequence
- */
-static void FlashLed(board_t placa);
-
-/**
- * @brief Function to switch on and off a led with two keys
- */
-static void SwitchLed(board_t placa);
-
-/**
- * @brief Function to switch on and off a led with a single key
- */
-static void ToggleLed(board_t placa);
-
-/**
- * @brief Function to turn on a led while a key is pressed
- */
-static void TestLed(board_t placa);
-
-/**
- * @brief Function to generate a delay of approximately 100 ms
- */
-static void Delay(void);
 
 /* === Public variable definitions ============================================================= */
 
 /* === Private variable definitions ============================================================ */
 
+static board_t board;
+
 /* === Private function implementation ========================================================= */
 
-static void FlashLed(board_t placa) {
-    static int divisor = 0;
-    static rgb_color_t state = LED_BLUE_OFF;
-    divisor++;
-    if (divisor == 5) {
-        divisor = 0;
-        state = (state + 1) % (LED_BLUE_OFF + 1);
-
-        switch (state) {
-        case LED_RED_ON:
-            DigitalOutputActivate(placa->led_rgb_canal_r);
-            break;
-        case LED_GREEN_ON:
-            DigitalOutputActivate(placa->led_rgb_canal_g);
-            break;
-        case LED_BLUE_ON:
-            DigitalOutputActivate(placa->led_rgb_canal_b);
-            break;
-        default:
-            DigitalOutputDeactivate(placa->led_rgb_canal_r);
-            DigitalOutputDeactivate(placa->led_rgb_canal_g);
-            DigitalOutputDeactivate(placa->led_rgb_canal_b);
-            break;
-        }
-    }
-}
-
-static void SwitchLed(board_t placa) {
-    if (DigitalInputGetState(placa->tecla_prender)) {
-        DigitalOutputActivate(placa->led_rojo);
-    }
-    if (DigitalInputGetState(placa->tecla_apagar)) {
-        DigitalOutputDeactivate(placa->led_rojo);
-    }
-}
-
-static void ToggleLed(board_t placa) {
-    if (DigitalInputHasActivated(placa->tecla_cambiar)) {
-        DigitalOutputToggle(placa->led_amarillo);
-    }
-}
-
-static void TestLed(board_t placa) {
-    if (DigitalInputGetState(placa->tecla_probar)) {
-        DigitalOutputActivate(placa->led_verde);   
-    } else {
-        DigitalOutputDeactivate(placa->led_verde); 
-    }
-}
-
-static void Delay(void) {
-    for (int index = 0; index < 100; index++) {
-        for (int delay = 0; delay < 25000; delay++) {
-            __asm("NOP");
-        }
-    }
-}
-
 /* === Public function implementation ========================================================== */
-
 int main(void) {
+    // botones f1 a f4 aumentar el numero del segmento correspondiente
+    // boton accept activa y desactiva el parpadeo de los puntos
+    // boton cancel activa y desactiva el led de abajo(el que usamos en vez de un buzzer)
+    uint8_t entrada[4] = {1, 2, 3, 4};
 
-    board_t placa = BoardCreate();
+    bool parpadeo_puntos = false;
+    bool puntos_encendidos = false;
+    bool led_encendido = false;
+
+    uint32_t contador = 0;
+
+    board = BoardCreate();
+
+    DisplayWriteBCD(board->display, entrada, sizeof(entrada));
+
     while (true) {
-        FlashLed(placa);
-        SwitchLed(placa);
-        ToggleLed(placa);
-        TestLed(placa);
 
-        Delay();
+        if (DigitalInputHasActivated(board->accept)) {
+            parpadeo_puntos = !parpadeo_puntos;
+
+            if (!parpadeo_puntos && puntos_encendidos) {
+                DisplayToggleDots(board->display, 0, 3);
+                puntos_encendidos = false;
+            }
+        }
+
+        if (DigitalInputHasActivated(board->cancel)) {
+            led_encendido = !led_encendido;
+
+            if (led_encendido) {
+                DigitalOutputActivate(board->buzzer);
+            } else {
+                DigitalOutputDeactivate(board->buzzer);
+            }
+        }
+
+        if (DigitalInputHasActivated(board->f1)) {
+            entrada[3] = (entrada[3] + 1) % 10;
+            DisplayWriteBCD(board->display, entrada, sizeof(entrada));
+        }
+
+        if (DigitalInputHasActivated(board->f2)) {
+            entrada[2] = (entrada[2] + 1) % 10;
+            DisplayWriteBCD(board->display, entrada, sizeof(entrada));
+        }
+
+        if (DigitalInputHasActivated(board->f3)) {
+            entrada[1] = (entrada[1] + 1) % 10;
+            DisplayWriteBCD(board->display, entrada, sizeof(entrada));
+        }
+
+        if (DigitalInputHasActivated(board->f4)) {
+            entrada[0] = (entrada[0] + 1) % 10;
+            DisplayWriteBCD(board->display, entrada, sizeof(entrada));
+        }
+
+        contador++;
+        if (parpadeo_puntos && contador >= 20) {
+            contador = 0;
+
+            DisplayToggleDots(board->display, 0, 3);
+            puntos_encendidos = !puntos_encendidos;
+        }
+
+        for (int index = 0; index < 50; index++) {
+            for (int delay = 0; delay < 1000; delay++) {
+                __asm("NOP");
+            }
+            DisplayRefresh(board->display);
+        }
     }
 
     return 0;
 }
-
 /* === End of documentation ==================================================================== */
-
 /** @} End of module definition for doxygen */

@@ -53,6 +53,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
 
+#endif
 #endif /* PLANTILLA_H_ */

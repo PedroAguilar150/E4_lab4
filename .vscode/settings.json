@@ -1,0 +1,18 @@
+{
+    // Activa el formateo automático cada vez que guardas el archivo (Ctrl + S)
+    "editor.formatOnSave": true,
+
+    // Configura que el formateador por defecto para C y C++ sea la extensión oficial
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+
+    // Le dice a la extensión que busque obligatoriamente tu archivo `.clang-format`
+    "C_Cpp.clang_format_style": "file",
+
+    // Estilo de respaldo por si en algún proyecto no tienes el archivo `.clang-format`
+    "C_Cpp.clang_format_fallbackStyle": "LLVM"
+}

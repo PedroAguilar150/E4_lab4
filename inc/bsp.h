@@ -20,16 +20,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
-#ifndef DIGITAL_H_
-#define DIGITAL_H_
+#ifndef BSP_H_
+#define BSP_H_
 
-/** @file digital.h
- ** @brief Declaracion de las funciones para gestion de entradas y salidas digitales
+/** @file bsp.h
+ ** @brief Abstracción de hardware para la placa EDU-CIAA-NXP
  **/
 
 /* === Headers files inclusions ==================================================================================== */
+
+#include "digital.h"
+#include "screen.h"
 #include <stdint.h>
-#include <stdbool.h>
+
 /* === Header for C++ compatibility ================================================================================ */
 
 #ifdef __cplusplus
@@ -38,96 +41,37 @@ extern "C" {
 
 /* === Public macros definitions =================================================================================== */
 
-#define ACTIVATE_EVENT   1
-#define DEACTIVATE_EVENT -1
-
 /* === Public data type declarations =============================================================================== */
-
-/**
- * @brief  Puntero opaco al discritor de una salida digital
- */
-typedef struct digital_output_s * digital_output_t;
-
-/**
- * @brief Puntero opaco al discritor de una entrada digital
- *
- */
-typedef struct digital_input_s * digital_input_t;
+typedef struct board_s {
+    digital_output_t buzzer;
+    digital_input_t f1;
+    digital_input_t f2;
+    digital_input_t f3;
+    digital_input_t f4;
+    digital_input_t accept;
+    digital_input_t cancel;
+    display_t display;
+} const * board_t;
 
 /* === Public variable declarations ================================================================================ */
 
 /* === Public function declarations ================================================================================ */
-
 /**
- * @brief Crea y configura una salida digital en el puerto y terminal indicados
+ * @brief Inicializa el hardware de la placa y crea el descriptor de recursos
  *
- * @param puerto
- * @param terminal
- * @return digital_output_t
+ * @return puntero al descriptor de la placa
  */
-
-digital_output_t DigitalOutputCreate(uint32_t gpio, uint8_t bit);
+board_t BoardCreate();
 
 /**
- * @brief Activa la salida digital
- * @param salida Puntero a la salida digital
- */
-void DigitalOutputActivate(digital_output_t output);
-
-/**
- * @brief Desactiva la salida digital
- * @param salida Puntero a la salida digital
- */
-void DigitalOutputDeactivate(digital_output_t output);
-
-/**
- * @brief Alterna el estado de la salida digital
- * @param salida Puntero a la salida digital
- */
-void DigitalOutputToggle(digital_output_t output);
-
-/**
- * @brief Crea y configura una entrada digital en el puerto y terminal indicados
+ * @brief Configura el temporizador Systick del nucleo
  *
- * @param gpio
- * @param bit
- * @param inverted
- * @return digital_input_t
+ * @param ticks Frecuencia de interrupcion del Systick en Hz
  */
-digital_input_t DigitalInputCreate(uint32_t gpio, uint8_t bit, bool inverted);
-
-/**
- * @brief Lee el estalo logico actual de la entrada digital
- *
- * @param input
- * @return true
- * @return false
- */
-bool DigitalInputGetState(digital_input_t input);
-
-/**
- * @brief Detecta si la entrada digital ha cambiado su estado logico desde la ultima lectura
- *
- * @param input
- * @return int
- */
-
-int DigitalInputHasChanged(digital_input_t input);
-
-/**
- * @brief Detecta si la entrada digital ha cambiado su estado logico desde la ultima lectura y se encuentra en estado de
- * activacion
- *
- * @param self
- * @return true
- * @return false
- */
-bool DigitalInputHasActivated(digital_input_t self);
-
+void SisTick_Init(uint16_t ticks);
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* DIGITAL_H_ */
+#endif /* BSP_H_*/
