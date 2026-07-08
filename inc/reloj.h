@@ -44,15 +44,6 @@ extern "C" {
 /* === Public data type declarations =============================================================================== */
 typedef uint8_t hora_t[6];
 typedef struct clock_s * clock_t;
-struct clock_s {
-    hora_t hora;
-    bool valida;
-    unsigned int ticks_per_second;
-    unsigned int tick_count;
-    void (*callback)(struct clock_s *);
-    hora_t alarma;
-    bool alarma_habilitada;
-};
 
 /* === Public variable declarations ================================================================================ */
 
@@ -62,41 +53,15 @@ clock_t RelojCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
 bool RelojSetCurrentTime(clock_t reloj, hora_t nueva_hora);
 bool RelojGetCurrentTime(clock_t reloj, hora_t current_time);
 
-void reloj_configurar_ticks_por_segundo(int ticks);
-
-void reloj_ajustar_hora(uint8_t nueva_hora[6]);
-
-void reloj_tick(void);
 void ClockTick(clock_t reloj);
 
-void reloj_consultar_hora(uint8_t destino[6]);
-
-bool reloj_hora_valida(void);
-
-clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*callback)(clock_t));
-bool SetCurrentTime(clock_t reloj, hora_t nueva_hora);
-bool GetCurrentTime(clock_t reloj, hora_t hora_actual);
-
-clock_t ClockCreateWithTicks(unsigned int ticks_per_second, void (*callback)(clock_t));
-bool IsCurrentTimeValid(clock_t reloj);
-bool ReadCurrentTime(clock_t reloj, hora_t hora_actual);
-
-clock_t ClockCreate(unsigned int ticks_per_second, void (*callback)(clock_t));
 bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma);
 bool AlarmReadTime(clock_t reloj, hora_t alarma_actual);
-
-bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma);
 
 void AlarmEnable(clock_t reloj, bool estado);
 bool IsAlarmActive(clock_t reloj);
 
-void SetAlarmEnabled(clock_t reloj, bool estado);
 bool IsAlarmEnabled(clock_t reloj);
-
-bool AjustarHora(clock_t reloj, uint8_t * hora);
-bool ConfigurarAlarma(clock_t reloj, uint8_t * hora);
-void ActivarAlarma(clock_t reloj, bool estado);
-void TickClock(clock_t reloj);
 
 bool PostponeAlarm(clock_t reloj, unsigned int minutos);
 bool GetAlarmTime(clock_t reloj, hora_t hora);

@@ -32,26 +32,46 @@ SPDX-License-Identifier: MIT
 /* === Macros definitions ====================================================================== */
 
 /* === Private data type declarations ========================================================== */
-static uint8_t hora[6] = {0};
-static int ticks_por_segundo = 1;
-static int contador_ticks = 0;
-static bool hora_es_valida = false;
+struct clock_s {
+    hora_t hora;
+    hora_t alarma;
+    hora_t alarma_pospuesta;
+    bool alarma_pospuesta_activa;
+    bool valida;
+    bool alarma_habilitada;
+    unsigned int ticks_per_second;
+    unsigned int tick_count;
+    void (*callback)(clock_t);
+};
 
 /* === Private function declarations =========================================================== */
+static bool HoraIgual(hora_t h1, hora_t h2);
 
 /* === Private variable definitions ============================================================ */
 
 /* === Public variable definition  ============================================================= */
 
 /* === Private function definitions ============================================================ */
+static bool HoraIgual(hora_t h1, hora_t h2) {
+    for (int i = 0; i < 6; i++) {
+        if (h1[i] != h2[i])
+            return false;
+    }
+    return true;
+}
 
 /* === Public function implementation ========================================================== */
+
 clock_t RelojCreate(unsigned int ticks_per_second, void (*callback)(clock_t)) {
     clock_t nuevo = malloc(sizeof(struct clock_s));
     if (!nuevo)
         return NULL;
     memset(nuevo->hora, 0, sizeof(hora_t));
+    memset(nuevo->alarma, 0, sizeof(hora_t));
+    memset(nuevo->alarma_pospuesta, 0, sizeof(hora_t));
+    nuevo->alarma_pospuesta_activa = false;
     nuevo->valida = false;
+    nuevo->alarma_habilitada = false;
     nuevo->ticks_per_second = ticks_per_second;
     nuevo->tick_count = 0;
     nuevo->callback = callback;
@@ -62,7 +82,7 @@ bool RelojSetCurrentTime(clock_t reloj, hora_t nueva_hora) {
     if (!reloj)
         return false;
     memcpy(reloj->hora, nueva_hora, sizeof(hora_t));
-    reloj->valida = true; // <-- esta línea es clave
+    reloj->valida = true;
     return true;
 }
 
@@ -73,65 +93,8 @@ bool RelojGetCurrentTime(clock_t reloj, hora_t current_time) {
     return reloj->valida; // devuelve true si la hora fue marcada como válida
 }
 
-void reloj_configurar_ticks_por_segundo(int ticks) {
-    ticks_por_segundo = ticks;
-}
-
-void reloj_ajustar_hora(uint8_t nueva_hora[6]) {
-    for (int i = 0; i < 6; i++) {
-        hora[i] = nueva_hora[i];
-    }
-    hora_es_valida = true;
-}
-
-void reloj_tick(void) {
-    if (!hora_es_valida)
-        return;
-
-    contador_ticks++;
-    if (contador_ticks >= ticks_por_segundo) {
-        contador_ticks = 0;
-        // incrementar segundos en BCD
-        hora[5]++; // unidad de segundos
-        if (hora[5] >= 10) {
-            hora[5] = 0;
-            hora[4]++;          // decena de segundos
-            if (hora[4] >= 6) { // 60 segundos
-                hora[4] = 0;
-                hora[3]++; // unidad de minutos
-                if (hora[3] >= 10) {
-                    hora[3] = 0;
-                    hora[2]++;          // decena de minutos
-                    if (hora[2] >= 6) { // 60 minutos
-                        hora[2] = 0;
-                        hora[1]++; // unidad de horas
-                        if (hora[1] >= 10) {
-                            hora[1] = 0;
-                            hora[0]++;                          // decena de horas
-                            if (hora[0] >= 3 && hora[1] >= 4) { // 24 horas
-                                hora[0] = 0;
-                                hora[1] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void reloj_consultar_hora(uint8_t destino[6]) {
-    for (int i = 0; i < 6; i++) {
-        destino[i] = hora[i];
-    }
-}
-
-bool reloj_hora_valida(void) {
-    return hora_es_valida;
-}
-
 void ClockTick(clock_t reloj) {
-    if (!reloj)
+    if (!reloj || !reloj->valida)
         return;
 
     reloj->tick_count++;
@@ -139,7 +102,7 @@ void ClockTick(clock_t reloj) {
     if (reloj->tick_count >= reloj->ticks_per_second) {
         reloj->tick_count = 0;
 
-        // Incrementar unidad de segundos
+        // Incrementar unidad de segundos en BCD
         reloj->hora[5]++;
         if (reloj->hora[5] >= 10) {
             reloj->hora[5] = 0;
@@ -161,7 +124,7 @@ void ClockTick(clock_t reloj) {
                             reloj->hora[1] = 0;
                             reloj->hora[0]++; // decena de horas
 
-                            if (reloj->hora[0] >= 3 && reloj->hora[1] >= 4) {
+                            if (reloj->hora[0] >= 2 && reloj->hora[1] >= 4) { // Corrección para 24 hs reales
                                 reloj->hora[0] = 0;
                                 reloj->hora[1] = 0;
                             }
@@ -171,38 +134,19 @@ void ClockTick(clock_t reloj) {
             }
         }
 
-        if (reloj->callback) {
-            reloj->callback(reloj);
+        if (reloj->alarma_habilitada && HoraIgual(reloj->hora, reloj->alarma)) {
+            if (reloj->callback != NULL) {
+                reloj->callback(reloj);
+            }
+        }
+
+        if (reloj->alarma_pospuesta_activa && HoraIgual(reloj->hora, reloj->alarma_pospuesta)) {
+            reloj->alarma_pospuesta_activa = false; // lo apagamos para el proximo dia
+            if (reloj->callback != NULL) {
+                reloj->callback(reloj);
+            }
         }
     }
-}
-clock_t CreateClockWithTicksPerSecond(unsigned int ticks_per_second, void (*callback)(clock_t)) {
-    return RelojCreate(ticks_per_second, callback);
-}
-
-bool SetCurrentTime(clock_t reloj, hora_t nueva_hora) {
-    return RelojSetCurrentTime(reloj, nueva_hora);
-}
-
-bool GetCurrentTime(clock_t reloj, hora_t hora_actual) {
-    return RelojGetCurrentTime(reloj, hora_actual);
-}
-
-clock_t ClockCreateWithTicks(unsigned int ticks_per_second, void (*callback)(clock_t)) {
-    return RelojCreate(ticks_per_second, callback);
-}
-
-bool IsCurrentTimeValid(clock_t reloj) {
-    hora_t dummy;
-    return RelojGetCurrentTime(reloj, dummy);
-}
-
-bool ReadCurrentTime(clock_t reloj, hora_t hora_actual) {
-    return RelojGetCurrentTime(reloj, hora_actual);
-}
-
-clock_t ClockCreate(unsigned int ticks_per_second, void (*callback)(clock_t)) {
-    return RelojCreate(ticks_per_second, callback);
 }
 
 bool AlarmSetTime(clock_t reloj, hora_t nueva_alarma) {
@@ -219,13 +163,6 @@ bool AlarmReadTime(clock_t reloj, hora_t alarma_actual) {
     return true;
 }
 
-bool SetAlarmTime(clock_t reloj, hora_t nueva_alarma) {
-    if (reloj == NULL)
-        return false;
-    memcpy(reloj->alarma, nueva_alarma, sizeof(hora_t));
-    return true;
-}
-
 void AlarmEnable(clock_t reloj, bool estado) {
     if (reloj != NULL) {
         reloj->alarma_habilitada = estado;
@@ -238,87 +175,30 @@ bool IsAlarmActive(clock_t reloj) {
     return reloj->alarma_habilitada;
 }
 
-void SetAlarmEnabled(clock_t reloj, bool estado) {
-    if (reloj != NULL) {
-        reloj->alarma_habilitada = estado;
-    }
-}
-
-bool IsAlarmEnabled(clock_t reloj) {
-    if (reloj == NULL)
-        return false;
-    return reloj->alarma_habilitada;
-}
-bool AjustarHora(clock_t reloj, uint8_t * hora) {
-    if (reloj == NULL)
-        return false;
-    for (int i = 0; i < 6; i++) {
-        reloj->hora[i] = hora[i];
-    }
-    reloj->valida = true;
-    return true;
-}
-
-bool ConfigurarAlarma(clock_t reloj, uint8_t * hora) {
-    if (reloj == NULL)
-        return false;
-    for (int i = 0; i < 6; i++) {
-        reloj->alarma[i] = hora[i];
-    }
-    return true;
-}
-
-void ActivarAlarma(clock_t reloj, bool estado) {
-    if (reloj != NULL) {
-        reloj->alarma_habilitada = estado;
-    }
-}
-
-static bool HoraIgual(hora_t h1, hora_t h2) {
-    for (int i = 0; i < 6; i++) {
-        if (h1[i] != h2[i])
-            return false;
-    }
-    return true;
-}
-
-void TickClock(clock_t reloj) {
-    if (reloj == NULL)
-        return;
-
-    // Verificar alarma
-    if (reloj->alarma_habilitada && HoraIgual(reloj->hora, reloj->alarma)) {
-        if (reloj->callback != NULL) {
-            reloj->callback(reloj);
-        }
-    }
-}
-
 bool PostponeAlarm(clock_t reloj, unsigned int minutos) {
     if (reloj == NULL)
         return false;
 
-    // Convertir hora actual de la alarma a valores enteros
+    // tomamos como base la hora actual del reloj, no la hora de la alarma
     int horas = reloj->alarma[0] * 10 + reloj->alarma[1];
     int mins = reloj->alarma[2] * 10 + reloj->alarma[3];
     int segs = reloj->alarma[4] * 10 + reloj->alarma[5];
 
-    // Sumar minutos
     int total = horas * 60 + mins + minutos;
-
-    // Normalizar dentro de 24h
     total %= (24 * 60);
 
     horas = total / 60;
     mins = total % 60;
 
-    // Guardar en BCD
-    reloj->alarma[0] = horas / 10;
-    reloj->alarma[1] = horas % 10;
-    reloj->alarma[2] = mins / 10;
-    reloj->alarma[3] = mins % 10;
-    reloj->alarma[4] = segs / 10;
-    reloj->alarma[5] = segs % 10;
+    // guardamos como hora pospuesta en la variable temporal
+    reloj->alarma_pospuesta[0] = horas / 10;
+    reloj->alarma_pospuesta[1] = horas % 10;
+    reloj->alarma_pospuesta[2] = mins / 10;
+    reloj->alarma_pospuesta[3] = mins % 10;
+    reloj->alarma_pospuesta[4] = segs / 10;
+    reloj->alarma_pospuesta[5] = segs % 10;
+
+    reloj->alarma_pospuesta_activa = true; // activamos el snooze
 
     return true;
 }
@@ -326,9 +206,7 @@ bool PostponeAlarm(clock_t reloj, unsigned int minutos) {
 bool GetAlarmTime(clock_t reloj, hora_t hora) {
     if (reloj == NULL)
         return false;
-    for (int i = 0; i < 6; i++) {
-        hora[i] = reloj->alarma[i];
-    }
+    memcpy(hora, reloj->alarma, sizeof(hora_t));
     return true;
 }
 

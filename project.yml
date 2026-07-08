@@ -104,7 +104,7 @@
     - inc/** # In simple projects, this entry often duplicates :source
     - hal/inc
   :support:
-    - test/support
+    - test
   :libraries: []
 
 # You can even specify specific files to add or remove from your test
