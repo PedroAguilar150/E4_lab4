@@ -68,7 +68,7 @@ board_t BoardCreate();
  *
  * @param ticks Frecuencia de interrupcion del Systick en Hz
  */
-void SisTick_Init(uint16_t ticks);
+void SysTick_Init(uint16_t ticks);
 /* === End of conditional blocks =================================================================================== */
 
 #ifdef __cplusplus

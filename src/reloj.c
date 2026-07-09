@@ -168,6 +168,12 @@ void AlarmEnable(clock_t reloj, bool estado) {
         reloj->alarma_habilitada = estado;
     }
 }
+bool IsAlarmEnabled(clock_t reloj) {
+    if (reloj != NULL) {
+        return reloj->alarma_habilitada;
+    }
+    return false; // por seguridad, si el reloj es NULL, consideramos que la alarma no está habilitada
+}
 
 bool IsAlarmActive(clock_t reloj) {
     if (reloj == NULL)

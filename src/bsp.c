@@ -171,8 +171,15 @@ board_t BoardCreate() {
 }
 
 void SysTick_Init(uint16_t ticks) {
-    __asm volatile("cpsid i");
+    __asm volatile("cpsid i"); // Deshabilita temporalmente para configurar
+
+    // Configura el Systick de la arquitectura CMSIS
+    SystemCoreClockUpdate();
+    SysTick_Config(SystemCoreClock / ticks);
+
+    __asm volatile("cpsie i"); // ¡CRÍTICO! Vuelve a habilitar las interrupciones globales
 }
+
 /* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */
